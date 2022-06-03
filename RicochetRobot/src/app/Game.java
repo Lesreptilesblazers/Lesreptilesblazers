@@ -21,8 +21,8 @@ import java.util.Random;
 
 public class Game extends HBox {
 
-    private static final int WIDTH = 10;
-    private static final int HEIGHT = 10;
+    private static final int WIDTH = 16;
+    private static final int HEIGHT = 16;
 
     private Tile[][] board;
     private final Random random = new Random();
@@ -60,7 +60,7 @@ public class Game extends HBox {
                         System.out.println("LOLOLO");
                     }
                 });
-                gridPane.add(board[i][j], j, i);
+                gridPane.add(board[i][j], j, i);            //ajoute les tuiles à l'interface
             }
         }
         createObstacles();
@@ -116,10 +116,10 @@ public class Game extends HBox {
 
         VBox cont = new VBox(5);
         movement = new VBox(5);
-        movement.getChildren().addAll(left, right, up, down);
+        movement.getChildren().addAll(left, right, up, down);       //ajout interface graphique
         movement.setVisible(false);
         cont.setPadding(new Insets(20));
-        cont.getChildren().addAll(stats, number, suggestNumber, demonstrate, movement);
+        cont.getChildren().addAll(stats, number, suggestNumber, demonstrate, movement);     //ajout interface graphique
         getChildren().add(cont);
 
         demonstrate.setOnAction(event -> {
@@ -137,25 +137,33 @@ public class Game extends HBox {
             int i = selectedRobot.getDemX();
             for ( i = selectedRobot.getDemX(); i >= 0; i--) {
                 if (i - 1 < 0) {
-                    timeline.stop();
-                    return;
+                    break;
                 }
                 Tile tile = board[i - 1][selectedRobot.getDemY()];
                 if (tile.getRobot() != null) {
-                    timeline.stop();
+                    break;
                 }
-                if (tile.destination) {
+                if (tile.destination == selectedRobot.getNumber()) {
                     currentPlayer.setPoints(currentPlayer.getPoints() + 1);
-                    timeline.stop();
+                    board[selectedRobot.getDemX()][selectedRobot.getDemY()].setRobot(null);
+                    board[selectedRobot.getDemX()][selectedRobot.getDemY()].setGraphic(null);
+                    tile.destination = -1;
+                    tile.updateStyle();
+                    return;
                 }
-                if (tile.closed[3]) {
-                    timeline.stop();
+                if (tile.closed[2]) {
+                    break;
+                }
+                if (tile.closed[0]) {
+                    i--;
+                    break;
                 }
             }
             // ça enlève le robot de sa position de base et le met sur sa nouvelle case
                 board[i][selectedRobot.getDemY()].setGraphic(new ImageView(selectedRobot.getImage()));
                 board[i][selectedRobot.getDemY()].setRobot(selectedRobot);
                 board[selectedRobot.getDemX()][selectedRobot.getDemY()].setRobot(null);
+                board[selectedRobot.getDemX()][selectedRobot.getDemY()].setGraphic(null);
                 selectedRobot.setDemX(i);
 
         });
@@ -177,17 +185,26 @@ public class Game extends HBox {
                 if (tile.getRobot() != null) {
                     break;
                 }
-                if (tile.destination) {
+                if (tile.destination == selectedRobot.getNumber()) {
                     currentPlayer.setPoints(currentPlayer.getPoints() + 1);
+                    board[selectedRobot.getDemX()][selectedRobot.getDemY()].setRobot(null);
+                    board[selectedRobot.getDemX()][selectedRobot.getDemY()].setGraphic(null);
+                    tile.destination = -1;
+                    tile.updateStyle();
+                    return;
+                }
+                if (tile.closed[0]) {
                     break;
                 }
-                if (tile.closed[1]) {
+                if (tile.closed[2]) {
+                    i++;
                     break;
                 }
             }
             board[i][selectedRobot.getDemY()].setGraphic(new ImageView(selectedRobot.getImage()));
             board[i][selectedRobot.getDemY()].setRobot(selectedRobot);
             board[selectedRobot.getDemX()][selectedRobot.getDemY()].setRobot(null);
+            board[selectedRobot.getDemX()][selectedRobot.getDemY()].setGraphic(null);
             selectedRobot.setDemX(i);
         });
 
@@ -202,24 +219,32 @@ public class Game extends HBox {
             int i = selectedRobot.getDemY();
             for (i = selectedRobot.getDemY(); i >= 0; i--) {
                 if (i - 1 < 0) {
-                    timeline.stop();
-                    return;
+                    break; //break
                 }
                 Tile tile = board[selectedRobot.getDemX()][i - 1];
                 if (tile.getRobot() != null) {
-                    timeline.stop();
+                    break;
                 }
-                if (tile.destination) {
+                if (tile.destination == selectedRobot.getNumber()) {
                     currentPlayer.setPoints(currentPlayer.getPoints() + 1);
-                    timeline.stop();
+                    board[selectedRobot.getDemX()][selectedRobot.getDemY()].setRobot(null);
+                    board[selectedRobot.getDemX()][selectedRobot.getDemY()].setGraphic(null);
+                    tile.destination = -1;
+                    tile.updateStyle();
+                    return;
                 }
-                if (tile.closed[2]) {
-                    timeline.stop();
+                if (tile.closed[1]) {
+                    break;
+                }
+                if (tile.closed[3]) {
+                    i--;
+                    break;
                 }
             }
             board[selectedRobot.getDemX()][i].setGraphic(new ImageView(selectedRobot.getImage()));
             board[selectedRobot.getDemX()][i].setRobot(selectedRobot);
             board[selectedRobot.getDemX()][selectedRobot.getDemY()].setRobot(null);
+            board[selectedRobot.getDemX()][selectedRobot.getDemY()].setGraphic(null);
             selectedRobot.setDemY(i);
 
         });
@@ -235,24 +260,32 @@ public class Game extends HBox {
             int i = selectedRobot.getDemY();
             for ( i = selectedRobot.getDemY(); i < HEIGHT; i++) {
                 if (i + 1 >= HEIGHT) {
-                    timeline.stop();
                     break;
                 }
                 Tile tile = board[selectedRobot.getDemX()][i + 1];
                 if (tile.getRobot() != null) {
-                    timeline.stop();
+                    break;
                 }
-                if (tile.destination) {
+                if (tile.destination == selectedRobot.getNumber()) {
                     currentPlayer.setPoints(currentPlayer.getPoints() + 1);
-                    timeline.stop();
+                    board[selectedRobot.getDemX()][selectedRobot.getDemY()].setRobot(null);
+                    board[selectedRobot.getDemX()][selectedRobot.getDemY()].setGraphic(null);
+                    tile.destination = -1;
+                    tile.updateStyle();
+                    return;
+                }
+                if (tile.closed[3]) {
+                    break;
                 }
                 if (tile.closed[1]) {
-                    timeline.stop();
+                    i++;
+                    break;
                 }
             }
                 board[selectedRobot.getDemX()][i].setGraphic(new ImageView(selectedRobot.getImage()));
                 board[selectedRobot.getDemX()][i].setRobot(selectedRobot);
                 board[selectedRobot.getDemX()][selectedRobot.getDemY()].setRobot(null);
+            board[selectedRobot.getDemX()][selectedRobot.getDemY()].setGraphic(null);
                 selectedRobot.setDemY(i);
 
         });
@@ -291,6 +324,7 @@ public class Game extends HBox {
 
     private void createObstacles() {                    //creer une map aléatoire, pour chacune des tuiles de la map ça génere un coté aléatoirement si la tuimle est selectionnée al&éatoirement. avec des nombres aléatoires
         int des = 0;
+        int id = 0;
         for (int i = 0; i < WIDTH; i++) {
             for (int j = 0; j < HEIGHT; j++) {
                 Tile tile = board[i][j];
@@ -303,28 +337,28 @@ public class Game extends HBox {
                         switch (close) {
                             case 0:
                                 if (desR == 0 & des < 4) {
-                                    tile.destination = true;
+                                    tile.destination = id++;
                                     des++;
                                 }
                                 tile.closeTop();
                                 break;
                             case 1:
                                 if (desR == 0 & des < 4) {
-                                    tile.destination = true;
+                                    tile.destination = id++;
                                     des++;
                                 }
                                 tile.closeRight();
                                 break;
                             case 2:
                                 if (desR == 0 & des < 4) {
-                                    tile.destination = true;
+                                    tile.destination = id++;
                                     des++;
                                 }
                                 tile.closeBottom();
                                 break;
                             case 3:
                                 if (desR == 0 & des < 4) {
-                                    tile.destination = true;
+                                    tile.destination = id++;
                                     des++;
                                 }
                                 tile.closeLeft();
@@ -335,7 +369,7 @@ public class Game extends HBox {
                         switch (close) {
                             case 0:
                                 if (desR == 0 & des < 4) {
-                                    tile.destination = true;
+                                    tile.destination = id++;
                                     des++;
                                 }
                                 tile.closeTop();
@@ -343,7 +377,7 @@ public class Game extends HBox {
                                 break;
                             case 1:
                                 if (desR == 0 & des < 4) {
-                                    tile.destination = true;
+                                    tile.destination = id++;
                                     des++;
                                 }
                                 tile.closeRight();
@@ -351,7 +385,7 @@ public class Game extends HBox {
                                 break;
                             case 2:
                                 if (desR == 0 & des < 4) {
-                                    tile.destination = true;
+                                    tile.destination = id++;
                                     des++;
                                 }
                                 tile.closeBottom();
@@ -359,7 +393,7 @@ public class Game extends HBox {
                                 break;
                             case 3:
                                 if (desR == 0 & des < 4) {
-                                    tile.destination = true;
+                                    tile.destination = id++;
                                     des++;
                                 }
                                 tile.closeLeft();
